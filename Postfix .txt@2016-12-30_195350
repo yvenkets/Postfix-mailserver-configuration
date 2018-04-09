@@ -1,0 +1,126 @@
+service iptables stop
+service ip6tables stop
+chkconfig iptables off
+chkconfig ip6tables off
+vi /etc/selinux/config
+	Selinux=disabled
+yum install postfix
+vi etc/postfix/main.cf
+	line75	remove # set hostname = (ur hostname.domainname)
+	line83	remove # set mydomain =	(ur domain name)
+	line98	remove # set myorgin  = $myhostname
+	line113	remove # set inet_interface = all
+	line116	Add    # set inet_interfaces = localhost 
+	line119	remove # set inet_protocols = all
+	line164	Add    # set mydestination = $myhostname, localhost.$mydomain, localhost
+	line165	Remove # set mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
+	line264 Remove # set mynetworks = 192.168.2.0/24 , 127.0.0.0/8
+	line419 Remove # set home_mailbox = Maildir/
+	save
+service postfix restart
+chkconfig postfix on
+yum install telnet
+	y/n   = y
+telnet localhost smtp
+  result 
+  connected to localhost.
+  escape character is .^]'.
+  220 hostname.domain.com ESMTP Postfix
+ehlo localhost
+  result
+  nos-ipeline
+  nos-pvrfy
+  nos-etrn
+mail from:root(user name)
+  result rcpt
+  250 2.1.0 ok
+rcpt to:sundar(user name)
+  result
+  250 2.1.5 ok
+data
+  result 
+  354 End data with <CR><LF>.<CR><LF>
+"this is your brother"
+.
+250 2.0.0 ok: queued as alpha numeric
+quit
+221 2.0.0 Bye
+connection closed by forgien host.
+
+# to check mail
+cd /home/sun/Maildir/new/
+cat filename
+Output shows the content of your id
+.
+
+yum install dovecot
+
+Y/N
+y
+
+vi /etc/dovecot/dovecot.conf
+	line no 20 remove #  set protocols = imap pop3 lmtp
+vi /etc/dovecot/conf.d/10-mail.conf
+	line no 24 remove #  set mail_location = maildir:~/Maildir
+vi /etc/dovecot/conf.d/10-auth.conf
+	line no 9 remove #  set  disable_plaintest_auth = no
+    line no 97			set  auth_mechanisms = plain login
+vi /etc/dovecot/conf.d/10-master.conf
+	line no 82 remove # set mode = 0600	
+	line no 83 remove # set user = postfix
+	line no 84 remove # set group = postfix
+chkconfig dovecot on
+
+wget http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm  
+
+rpm -ivh epel-release-6-8.noarch.rpm
+
+yum install squirrelmail
+Y/N
+y
+Y/N
+y
+service httpd start
+chkconfig httpd on 
+cd /usr/share/squirrelmail/config
+./conf.pl
+	make changes in config
+	Command>>1
+	Change organization name
+	Change Proviider link
+	Change Provider Name
+	S to save
+	Command>>2
+	1 change domain name
+	S to save
+	Q to quit
+vi /etc/httpd/conf/httpd.conf
+	end of the file add the below line
+	
+	Alias /squirrelmail /usr/share/squirrelmail
+	<Directory /usr/share/squirrelmail>
+		Options Indexes FollowSymLinks
+		RewriteEngine On
+		AllowOverride All
+		DirectoryIndex index.php
+		Order allow,deny
+		Allow from all
+	</Directory>
+service httpd restart
+
+Check securitygetsebool
+
+getsebool httpd_can_network_connect
+
+set security setsebool httpd_can_network_connect=1
+
+
+
+	
+
+
+
+
+
+
+	
